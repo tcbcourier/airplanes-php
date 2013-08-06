@@ -47,3 +47,6 @@ catch (AirplanesException $ex) {
 ```
 `uploadOrder()` returns an array containing the order number of your submited order. You can store that in your database to access tracking info (coming shortly).
 
+####License
+Airplanes-PHP is released under the BSD license.
+
