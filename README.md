@@ -4,7 +4,11 @@
 Airplanes-PHP is a simple PHP class that allows you to send orders to a courier company running Airplanes in the Sky.
 
 ####Installation
-To install airplanes-php, simply include `Airplanes.php` in your source.
+To install airplanes-php, either download the zip or git clone into your directory of choice.
+```
+git clone https://github.com/tcbcourier/airplanes-php.git 
+```
+Then simply require it the files that need to interact with Airplanes in the Sky.
 ```
 require_once(/path/to/Airplanes.php);
 ```
