@@ -1,5 +1,5 @@
 #Airplanes-PHP 0.1#
-###A Simple PHP Class that implements the Airplanes in the Sky API
+###A Simple PHP Wrapper that implements the Airplanes in the Sky API
 
 Airplanes-PHP is a simple PHP class that allows you to send orders to a courier company running Airplanes in the Sky.
 
