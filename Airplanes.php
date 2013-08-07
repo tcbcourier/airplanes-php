@@ -31,31 +31,29 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 define('TCB_CREDIT_CARD', 'credit card');
 define('TCB_CASH', 'cash');
-define('TCB_PREPAID', 'prepaid');
-define('API_ENDPOINT', 'https://airplanesinthesky.appspot.com/api/ecom/v2/jobs/');
+
 
 class Airplanes {
-    
     //Constants
+    private         $airplaneOrder;
     
+    private         $API_CREATE_ENDPOINT;
+    private         $API_STATUS_ENDPOINT;
     private         $clientId;
     private         $sharedSecret;
-    private         $externalId;
-    private         $airplanesURI;
-    private         $deliverToName;
-    private         $deliverToCompany;
-    private         $deliverToAddress;
-    private         $deliverToSuite;
-    private         $deliverToCity;
-    private         $deliverToState;
-    private         $deliverToZip;
-    private         $readyTime;
-    private         $deliverToDuetime;
-    private         $instructions;
-    private         $paymentMethod;
-    private         $total;
-    private         $tip;
-    private         $items = array();
+    
+    public function __construct($testing = false) {
+        $this->airplaneOrder = new AirplaneOrder();
+        if (!$testing) {
+            $this->API_CREATE_ENDPOINT = 'https://airplanesinthesky.appspot.com/api/ecom/v2/jobs/';
+            $this->API_STATUS_ENDPOINT = 'https://airplanesinthesky.appspot.com/api/ecom/v2/jobs/status/';
+        }
+        else {
+            $this->API_CREATE_ENDPOINT = 'http://localhost:8080/api/ecom/v2/jobs/';
+            $this->API_STATUS_ENDPOINT = 'http://localhost:8080/api/ecom/v2/jobs/status/';
+        }
+    }
+    
     
     public function setClientId($inClient) {
         $this->clientId = $inClient;
@@ -66,180 +64,187 @@ class Airplanes {
     }
     
     public function setExternalId($inId) {
-        $this->externalId = $inId;
-    }
-    
-    public function setAirplanesURI($inURI) {
-        $this->airplanesURI = $inURI;
+        $this->airplaneOrder->externalId = $inId;
     }
     
     public function setDeliverToName($inName) {
-        $this->deliverToName = $inName;
+        $this->airplaneOrder->deliverToName = $inName;
     }
     
     public function setDeliverToCompany($inCompany) {
-        $this->deliverToCompany = $inCompany;
+        $this->airplaneOrder->deliverToCompany = $inCompany;
     }
     
     public function setDeliverToAddress($inAddress) {
-        $this->deliverToAddress = $inAddress;
+        $this->airplaneOrder->deliverToAddress = $inAddress;
     }
     
     public function setDeliverToSuite($inSuite) {
-        $this->deliverToSuite = $inSuite;
+        $this->airplaneOrder->deliverToSuite = $inSuite;
     }
     
     public function setDeliverToCity($inCity) {
-        $this->deliverToCity = $inCity;
+        $this->airplaneOrder->deliverToCity = $inCity;
     }
     
     public function setDeliverToState($inState) {
-        $this->deliverToState = $inState;
+        $this->airplaneOrder->deliverToState = $inState;
     }
     
     public function setDeliverToZip($inZip) {
-        $this->deliverToZip = $inZip;
+        $this->airplaneOrder->deliverToZip = $inZip;
     }
     
     public function setReadyTime($inDate) {
         date_default_timezone_set('America/Los_Angeles');
         $newDate = date('Y-m-d h:i', strtotime($inDate));
-        $this->readyTime;
+        $this->airplaneOrder->readyTime;
     }
     
     public function setDeliverToDueTime($inDate) {
         date_default_timezone_set('America/Los_Angeles');
         $newDate = date('Y-m-d h:i', strtotime($inDate));
-        $this->deliverToDuetime = $newDate;
+        $this->airplaneOrder->deliverToDuetime = $newDate;
     }
     
     public function setInstructions($inInstructions) {
-        $this->instructions = $inInstructions;
+        $this->airplaneOrder->instructions = $inInstructions;
     }
     
     public function setPaymentMethod($inPayment) {
-        $this->paymentMethod = $inPayment;
+        $this->airplaneOrder->paymentMethod = $inPayment;
     }
     
     public function setTotal($inTotal) {
-        $this->total = $inTotal;
+        $this->airplaneOrder->total = $inTotal;
     }
     
     public function setTip($inTip) {
-        $this->tip = $inTip;
+        $this->airplaneOrder->tip = $inTip;
     }
     
     public function addItemToItems($quantity, $name, $sku = false) {
         if ($sku) {
-            array_push($this->items, array('name' => $name, 'quantity' => intval($quantity), 'sku' => $sku));
+            array_push($this->airplaneOrder->items, array('name' => $name, 'quantity' => intval($quantity), 'sku' => $sku));
         }
         else {
-            array_push($this->items, array('name' => $name, 'quantity' => intval($quantity)));
+            array_push($this->airplaneOrder->items, array('name' => $name, 'quantity' => intval($quantity)));
         }
     }
     
     public function uploadOrder() {
-        if (!isset($this->clientId)) {
-            throw new AirplanesException("You must set a client id.");
-            return false;
+        $retval = $this->processAndUploadOrders(array($this->airplaneOrder));
+        if ($retval) {
+            $this->airplaneOrder = new AirplaneOrder();
         }
-        
-        if (!isset($this->deliverToName)) {
-            throw new AirplanesException("You must set name of the person we are delivering to.");
-            return false;
-        }
-        
-        if (!isset($this->deliverToAddress)) {
-            throw new AirplanesException("You must set the address of where we are delivering to.");
-            return false;
-        }
-        
-        if (!isset($this->deliverToCity)) {
-            throw new AirplanesException("You must set the city we are delivering to.");
-            return false;
-        }
-        
-        if (!isset($this->deliverToState)) {
-            throw new AirplanesException("You must set the state we are delivering to.");
-            return false;
-        }
-        
-        if (!isset($this->deliverToZip)) {
-            throw new AirplanesException("You must set the zip code we are delivering to.");
-            return false;
-        }
-        
-        if (!isset($this->readyTime)) {
-            date_default_timezone_set('America/Los_Angeles');
-            $date = date('Y-m-d h:i', time());
-            $this->readyTime = $date;
-        }
-        
-        if (!isset($this->deliverToDueTime)) {
-            date_default_timezone_set('America/Los_Angeles');
-            $date = date('Y-m-d h:i', time() + 2700);
-            $this->deliverToDuetime = $date;
-            
-        }
-        
-        if (!isset($this->paymentMethod)) {
-            throw new AirplanesException("You must set the payment method for this order.");
-            return false;
-        }
-        
-        if (!isset($this->total)) {
-            throw new AirplanesException("You must set the order total.");
-            return false;
-        }
-        
-        date_default_timezone_set('America/Los_Angeles');
-        $currentDatetime = date('Y-m-d h:i', time());
-        
-        //Set the required fields in the JSON request
-        $anOrder = array(
-            'client_id'             => $this->clientId,
-            'order_date'            => $currentDatetime,
-            'deliver_to_name'       => $this->deliverToName,
-            'deliver_to_address'    => $this->deliverToAddress,
-            'deliver_to_city'       => $this->deliverToCity,
-            'deliver_to_state'      => $this->deliverToState,
-            'deliver_to_zip'        => $this->deliverToZip,
-            'ready_time'            => $this->readyTime,
-            'deliver_to_duetime'    => $this->deliverToDuetime,
-            'payment_method'        => $this->paymentMethod,
-            'total'                 => $this->total
-        );
-        
-        //Now add the optional fields (if applicable)
-        
-        if (isset($this->externalId)) {
-            $anOrder['external_id'] = $this->externalId;
-        }
-        
-        if (isset($this->deliverToCompany)) {
-            $anOrder['deliver_to_company'] = $this->deliverToCompany;
-        }
-        
-        if (isset($this->deliverToSuite)) {
-            $anOrder['deliver_to_suite'] = $this->deliverToSuite;
-        }
-        
-        if (isset($this->instructions)) {
-            $anOrder['instructions'] = $this->instructions;
-        }
-        
-        if (isset($this->tip)) {
-            $anOrder['tip'] = $this->tip;
-        }
-        
-        if (sizeof($this->items) > 0) {
-            $anOrder['items'] = $this->items;
-        }
-        
-        //Now put the above order into a wrapper array and encode it as JSON.
+        return $retval;
+    }
+    
+    private function processAndUploadOrders($inOrders) {
         $orders = array();
+        foreach ($inOrders as $order) {
+            if (!isset($this->clientId)) {
+                throw new AirplanesException("You must set a client id.");
+                return false;
+            }
+        
+            if (!isset($order->deliverToName)) {
+                throw new AirplanesException("You must set name of the person we are delivering to.");
+                return false;
+            }
+        
+            if (!isset($order->deliverToAddress)) {
+                throw new AirplanesException("You must set the address of where we are delivering to.");
+                return false;
+            }
+        
+            if (!isset($order->deliverToCity)) {
+                throw new AirplanesException("You must set the city we are delivering to.");
+                return false;
+            }
+        
+            if (!isset($order->deliverToState)) {
+                throw new AirplanesException("You must set the state we are delivering to.");
+                return false;
+            }
+        
+            if (!isset($order->deliverToZip)) {
+                throw new AirplanesException("You must set the zip code we are delivering to.");
+                return false;
+            }
+        
+            if (!isset($order->readyTime)) {
+                date_default_timezone_set('America/Los_Angeles');
+                $date = date('Y-m-d h:i', time());
+                $order->readyTime = $date;
+            }
+        
+            if (!isset($order->deliverToDueTime)) {
+                date_default_timezone_set('America/Los_Angeles');
+                $date = date('Y-m-d h:i', time() + 2700);
+                $order->deliverToDuetime = $date;
+            
+            }
+        
+            if (!isset($order->paymentMethod)) {
+                throw new AirplanesException("You must set the payment method for this order.");
+                return false;
+            }
+        
+            if (!isset($order->total)) {
+                throw new AirplanesException("You must set the order total.");
+                return false;
+            }
+        
+            date_default_timezone_set('America/Los_Angeles');
+            $currentDatetime = date('Y-m-d h:i', time());
+        
+            //Set the required fields in the JSON request
+            $anOrder = array(
+                'client_id'             => $this->clientId,
+                'order_date'            => $currentDatetime,
+                'deliver_to_name'       => $order->deliverToName,
+                'deliver_to_address'    => $order->deliverToAddress,
+                'deliver_to_city'       => $order->deliverToCity,
+                'deliver_to_state'      => $order->deliverToState,
+                'deliver_to_zip'        => $order->deliverToZip,
+                'ready_time'            => $order->readyTime,
+                'deliver_to_duetime'    => $order->deliverToDuetime,
+                'payment_method'        => $order->paymentMethod,
+                'total'                 => $order->total
+            );
+        
+            //Now add the optional fields (if applicable)
+        
+            if (isset($order->externalId)) {
+                $anOrder['external_id'] = $order->externalId;
+            }
+        
+            if (isset($order->deliverToCompany)) {
+                $anOrder['deliver_to_company'] = $order->deliverToCompany;
+            }
+        
+            if (isset($order->deliverToSuite)) {
+                $anOrder['deliver_to_suite'] = $order->deliverToSuite;
+            }
+        
+            if (isset($order->instructions)) {
+                $anOrder['instructions'] = $order->instructions;
+            }
+        
+            if (isset($order->tip)) {
+                $anOrder['tip'] = $order->tip;
+            }
+        
+            if (sizeof($order->items) > 0) {
+                $anOrder['items'] = $order->items;
+            }
+        
+            //Now put the above order into a wrapper array and encode it as JSON.
+        
 
-        array_push($orders, $anOrder);
+            array_push($orders, $anOrder);
+        }
 
         $json = json_encode($orders);
         
@@ -253,7 +258,7 @@ class Airplanes {
         $calculatedSig      = hash_hmac('sha1', $stringToSign, $this->sharedSecret); //HMAC it with shared key
  
         //cURL request
-        $curl = curl_init(API_ENDPOINT);
+        $curl = curl_init($this->API_CREATE_ENDPOINT);
         curl_setopt($curl, CURLOPT_POSTFIELDS, $json); //Set the JSON
         //Set your header
         curl_setopt($curl, CURLOPT_HTTPHEADER, array(                                                                  
@@ -265,6 +270,62 @@ class Airplanes {
         $result = curl_exec($curl);
         return $result;
     }
+    
+    public function trackJob($jobId) {
+        $retval = $this->processStatusRequests(array($jobId));
+        return $retval;
+    }
+    
+    private function processStatusRequests($orderIds) {
+        $orders = array();
+        foreach ($orderIds as $orderId) {
+           array_push($orders, array('order_number' => $orderId)); 
+        }
+        $json = json_encode($orders);
+        
+        $datetime           = new DateTime('America/Los_Angeles');
+        $requestDate        = $datetime->format(DateTime::ISO8601);
+ 
+        //Prepare the headers.
+        $requestBodyMD5     = md5($json); //Take MD5 hash of JSON
+        $utf8encoded        = utf8_encode($requestDate . $requestBodyMD5); //Utf8 encode with the date
+        $stringToSign       = base64_encode($utf8encoded); // base 64 encode it
+        $calculatedSig      = hash_hmac('sha1', $stringToSign, $this->sharedSecret); //HMAC it with shared key
+ 
+        //cURL request
+        $curl = curl_init($this->API_STATUS_ENDPOINT);
+        curl_setopt($curl, CURLOPT_POSTFIELDS, $json); //Set the JSON
+        //Set your header
+        curl_setopt($curl, CURLOPT_HTTPHEADER, array(                                                                  
+            'Content-Type: application/json',                                                                  
+            'Content-Length: ' . strlen($json),
+            'Date: ' . $requestDate,
+            'Authorization :' . $this->clientId . ':' . $calculatedSig)                                                      
+        ); 
+        $result = curl_exec($curl);
+        return $result;
+        
+    }
+    
+}
+
+class AirplaneOrder {
+    public         $externalId;
+    public         $airplanesURI;
+    public         $deliverToName;
+    public         $deliverToCompany;
+    public         $deliverToAddress;
+    public         $deliverToSuite;
+    public         $deliverToCity;
+    public         $deliverToState;
+    public         $deliverToZip;
+    public         $readyTime;
+    public         $deliverToDuetime;
+    public         $instructions;
+    public         $paymentMethod;
+    public         $total;
+    public         $tip;
+    public         $items = array();
 }
 
 class AirplanesException extends Exception {
