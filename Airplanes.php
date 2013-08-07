@@ -276,6 +276,11 @@ class Airplanes {
         return $retval;
     }
     
+    public function trackJobs($jobIds) {
+        $retval = $this->processStatusRequests($jobIds);
+        return $retval;
+    }
+    
     private function processStatusRequests($orderIds) {
         $orders = array();
         foreach ($orderIds as $orderId) {
