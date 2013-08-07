@@ -6,10 +6,10 @@ $airplane = new Airplanes();
 
 
 //Set the Client Id that was provided to you by your courier company.
-$airplane->setClientId('myawesomeclientId');
+$airplane->setClientId('myclientid');
 
 //Set the shared secret provided to you by your courier company
-$airplane->setSharedSecret('shared_secret');
+$airplane->setSharedSecret('mysharedkey');
 
 //(Optional) Set an external Id of the order. 
 // Useful for inhouse ids and such.
