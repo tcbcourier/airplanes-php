@@ -1,4 +1,4 @@
-#Airplanes-PHP 0.1#
+#Airplanes-PHP 0.2#
 ###A Simple PHP Wrapper that implements the Airplanes in the Sky API
 
 Airplanes-PHP is a simple PHP class that allows you to send orders to a courier company running Airplanes in the Sky.
@@ -43,7 +43,7 @@ $airplane->setTotal("20.00");
 $airplane->setTip("5.00");
 $airplane->addItemToItems('1', 'Whiteboard');
 ```
-After you have done that, simple call `uploadOrder()` to send the order to Airplanes in the Sky.
+After you have done that, simply call `uploadOrder()` to send the order to Airplanes in the Sky.
 ```
 try {
     $orderNumbers = $airplane->uploadOrder();
@@ -52,7 +52,7 @@ catch (AirplanesException $ex) {
     echo $ex;
 }
 ```
-`uploadOrder()` returns an array containing the order number of your submited order. You can store that in your database to access tracking info (coming shortly).
+`uploadOrder()` returns an array containing the order number of your submited order. **You should store this id that is returned**. This allows you to track the orders in Airplanes later on.
 
 #####Tracking Orders
 To get the current tracking information on a single order, simply call `trackJob()` and pass the order number that was returned in the `uploadOrder()` function. `trackJob()` will return an array of JSON objects containing order information. If an invalid order number is passed the `notes` property in the JSON object will read `Order Not Found`.
