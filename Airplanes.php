@@ -45,8 +45,8 @@ class Airplanes {
     public function __construct($testing = false) {
         $this->airplaneOrder = new AirplaneOrder();
         if (!$testing) {
-            $this->API_CREATE_ENDPOINT = 'https://airplanesinthesky.appspot.com/api/ecom/v2/jobs/';
-            $this->API_STATUS_ENDPOINT = 'https://airplanesinthesky.appspot.com/api/ecom/v2/jobs/status/';
+            $this->API_CREATE_ENDPOINT = 'https://airplaneinthesky.appspot.com/api/ecom/v2/jobs/';
+            $this->API_STATUS_ENDPOINT = 'https://airplaneinthesky.appspot.com/api/ecom/v2/jobs/status/';
         }
         else {
             $this->API_CREATE_ENDPOINT = 'http://localhost:8080/api/ecom/v2/jobs/';
@@ -65,6 +65,10 @@ class Airplanes {
     
     public function setExternalId($inId) {
         $this->airplaneOrder->externalId = $inId;
+    }
+    
+    public function setPickup($inPickup) {
+        $this->airplaneOrder->pickUp = $inPickup;
     }
     
     public function setDeliverToName($inName) {
@@ -195,6 +199,10 @@ class Airplanes {
                 throw new AirplanesException("You must set the order total.");
                 return false;
             }
+            
+            if (isset($order->pickUp)) {
+                $order->deliverToAddress = $order->pickUp . " to " . $order->deliverToAddress;
+            }
         
             date_default_timezone_set('America/Los_Angeles');
             $currentDatetime = date('Y-m-d h:i', time());
@@ -317,6 +325,7 @@ class Airplanes {
 class AirplaneOrder {
     public         $externalId;
     public         $airplanesURI;
+    public         $pickUp;
     public         $deliverToName;
     public         $deliverToCompany;
     public         $deliverToAddress;
