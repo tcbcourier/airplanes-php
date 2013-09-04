@@ -54,6 +54,10 @@ class Airplanes {
         }
     }
     
+    public function setCreateUrl($inUrl) {
+        $this->API_CREATE_ENDPOINT = $inUrl;
+    }
+    
     
     public function setClientId($inClient) {
         $this->clientId = $inClient;
@@ -101,13 +105,13 @@ class Airplanes {
     
     public function setReadyTime($inDate) {
         date_default_timezone_set('America/Los_Angeles');
-        $newDate = date('Y-m-d h:i', strtotime($inDate));
-        $this->airplaneOrder->readyTime;
+        $newDate = date('Y-m-d H:i', strtotime($inDate));
+        $this->airplaneOrder->readyTime = $newDate;
     }
     
     public function setDeliverToDueTime($inDate) {
         date_default_timezone_set('America/Los_Angeles');
-        $newDate = date('Y-m-d h:i', strtotime($inDate));
+        $newDate = date('Y-m-d H:i', strtotime($inDate));
         $this->airplaneOrder->deliverToDuetime = $newDate;
     }
     
@@ -179,13 +183,13 @@ class Airplanes {
         
             if (!isset($order->readyTime)) {
                 date_default_timezone_set('America/Los_Angeles');
-                $date = date('Y-m-d h:i', time());
+                $date = date('Y-m-d H:i', time());
                 $order->readyTime = $date;
             }
         
-            if (!isset($order->deliverToDueTime)) {
+            if (!isset($order->deliverToDuetime)) {
                 date_default_timezone_set('America/Los_Angeles');
-                $date = date('Y-m-d h:i', time() + 2700);
+                $date = date('Y-m-d H:i', time() + 2700);
                 $order->deliverToDuetime = $date;
             
             }
@@ -268,6 +272,7 @@ class Airplanes {
         //cURL request
         $curl = curl_init($this->API_CREATE_ENDPOINT);
         curl_setopt($curl, CURLOPT_POSTFIELDS, $json); //Set the JSON
+        curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
         //Set your header
         curl_setopt($curl, CURLOPT_HTTPHEADER, array(                                                                  
             'Content-Type: application/json',                                                                  
