@@ -49,15 +49,14 @@ class Airplanes {
             $this->API_STATUS_ENDPOINT = 'https://airplaneinthesky.appspot.com/api/ecom/v2/jobs/status/';
         }
         else {
-            $this->API_CREATE_ENDPOINT = 'http://localhost:8080/api/ecom/v2/jobs/';
-            $this->API_STATUS_ENDPOINT = 'http://localhost:8080/api/ecom/v2/jobs/status/';
+            $this->API_CREATE_ENDPOINT = 'https://airplaneintheskytesting.appspot.com/api/ecom/v2/jobs/';
+            $this->API_STATUS_ENDPOINT = 'https://airplaneintheskytesting.appspot.com/api/ecom/v2/jobs/status/';
         }
     }
     
     public function setCreateUrl($inUrl) {
         $this->API_CREATE_ENDPOINT = $inUrl;
     }
-    
     
     public function setClientId($inClient) {
         $this->clientId = $inClient;
@@ -253,8 +252,6 @@ class Airplanes {
             }
         
             //Now put the above order into a wrapper array and encode it as JSON.
-        
-
             array_push($orders, $anOrder);
         }
 
@@ -313,6 +310,7 @@ class Airplanes {
         //cURL request
         $curl = curl_init($this->API_STATUS_ENDPOINT);
         curl_setopt($curl, CURLOPT_POSTFIELDS, $json); //Set the JSON
+        curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
         //Set your header
         curl_setopt($curl, CURLOPT_HTTPHEADER, array(                                                                  
             'Content-Type: application/json',                                                                  
