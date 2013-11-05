@@ -36,7 +36,6 @@ define('TCB_CASH', 'cash');
 class Airplanes {
     //Constants
     private         $airplaneOrder;
-    
     private         $API_CREATE_ENDPOINT;
     private         $API_STATUS_ENDPOINT;
     private         $clientId;
@@ -50,13 +49,14 @@ class Airplanes {
         }
         else {
             $this->API_CREATE_ENDPOINT = 'https://airplaneintheskytesting.appspot.com/api/ecom/v2/jobs/';
-            $this->API_STATUS_ENDPOINT = 'https://airplaneintheskytesting.appspot.com/api/ecom/v2/jobs/status/';
+            $this->API_STATUS_ENDPOINT = 'http://airplaneintheskytesting.appspot.com/api/ecom/v2/jobs/status/';
         }
     }
     
     public function setCreateUrl($inUrl) {
         $this->API_CREATE_ENDPOINT = $inUrl;
     }
+    
     
     public function setClientId($inClient) {
         $this->clientId = $inClient;
@@ -103,13 +103,13 @@ class Airplanes {
     }
     
     public function setReadyTime($inDate) {
-        date_default_timezone_set('America/Los_Angeles');
+        date_default_timezone_set('UTC');
         $newDate = date('Y-m-d H:i', strtotime($inDate));
         $this->airplaneOrder->readyTime = $newDate;
     }
     
     public function setDeliverToDueTime($inDate) {
-        date_default_timezone_set('America/Los_Angeles');
+        date_default_timezone_set('UTC');
         $newDate = date('Y-m-d H:i', strtotime($inDate));
         $this->airplaneOrder->deliverToDuetime = $newDate;
     }
@@ -124,6 +124,10 @@ class Airplanes {
     
     public function setTotal($inTotal) {
         $this->airplaneOrder->total = $inTotal;
+    }
+    
+    public function setConfirmCode($inConfirmCode) {
+        $this->airplaneOrder->confirmCode = $inConfirmCode;
     }
     
     public function setTip($inTip) {
@@ -181,13 +185,13 @@ class Airplanes {
             }
         
             if (!isset($order->readyTime)) {
-                date_default_timezone_set('America/Los_Angeles');
+                date_default_timezone_set('UTC');
                 $date = date('Y-m-d H:i', time());
                 $order->readyTime = $date;
             }
         
             if (!isset($order->deliverToDuetime)) {
-                date_default_timezone_set('America/Los_Angeles');
+                date_default_timezone_set('UTC');
                 $date = date('Y-m-d H:i', time() + 2700);
                 $order->deliverToDuetime = $date;
             
@@ -207,7 +211,7 @@ class Airplanes {
                 $order->deliverToAddress = $order->pickUp . " to " . $order->deliverToAddress;
             }
         
-            date_default_timezone_set('America/Los_Angeles');
+            date_default_timezone_set('UTC');
             $currentDatetime = date('Y-m-d h:i', time());
         
             //Set the required fields in the JSON request
@@ -250,14 +254,20 @@ class Airplanes {
             if (sizeof($order->items) > 0) {
                 $anOrder['items'] = $order->items;
             }
+            
+            if (isset($order->confirmCode)) {
+                $anOrder['confirm_code'] = $order->confirmCode;
+            }
         
             //Now put the above order into a wrapper array and encode it as JSON.
+        
+
             array_push($orders, $anOrder);
         }
 
         $json = json_encode($orders);
         
-        $datetime           = new DateTime('America/Los_Angeles');
+        $datetime           = new DateTime('UTC');
         $requestDate        = $datetime->format(DateTime::ISO8601);
  
         //Prepare the headers.
@@ -298,7 +308,7 @@ class Airplanes {
         }
         $json = json_encode($orders);
         
-        $datetime           = new DateTime('America/Los_Angeles');
+        $datetime           = new DateTime('UTC');
         $requestDate        = $datetime->format(DateTime::ISO8601);
  
         //Prepare the headers.
@@ -342,6 +352,7 @@ class AirplaneOrder {
     public         $paymentMethod;
     public         $total;
     public         $tip;
+    public         $confirmCode;
     public         $items = array();
 }
 
